@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Le modèle marocain — Diplomatie sportive digitale, Maroc 2030</title>
+<meta name="description" content="Cartographie interactive de la stratégie à cinq piliers pour la diplomatie sportive digitale marocaine, Coupe du Monde 2030." />
+<script src="d3.min.js"></script>
+<style>
+:root{
+  --bg:#0B1622;
+  --bg-deep:#060D16;
+  --paper:#F4EFE2;
+  --ink:#EDE6D6;
+  --ink-dim:#93A4B0;
+  --ink-faint:#5E6E79;
+  --line:rgba(237,230,214,0.10);
+  --line-strong:rgba(237,230,214,0.22);
+
+  --p1:#C0524F; /* gouvernance — terre cuite */
+  --p2:#2F9C82; /* récit — zellige vert */
+  --p3:#D6A445; /* digital — laiton, urgence */
+  --p4:#6E93B0; /* diaspora — bleu atlas */
+  --p5:#9C7B4F; /* héritage — ocre */
+  --vision:#EDE6D6;
+
+  --serif:"Iowan Old Style","Palatino Linotype",Georgia,"Noto Naskh Arabic",serif;
+  --sans:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 1200px 700px at 20% -10%, rgba(214,164,69,0.07), transparent 60%),
+    radial-gradient(ellipse 900px 900px at 100% 0%, rgba(47,156,130,0.06), transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+::selection{ background:var(--p3); color:var(--bg-deep); }
+a{ color:inherit; }
+
+/* ===== zellige texture strip ===== */
+.zellige-rule{
+  height:10px; width:100%;
+  background-image: repeating-linear-gradient(135deg, transparent 0 8px, rgba(237,230,214,0.06) 8px 9px),
+                     repeating-linear-gradient(45deg, transparent 0 8px, rgba(237,230,214,0.06) 8px 9px);
+  opacity:.6;
+}
+
+/* ===== NAV ===== */
+nav.topnav{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px clamp(18px,4vw,48px);
+  background:rgba(6,13,22,0.86); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); }
+.brand b{ color:var(--ink); font-weight:600; }
+.navlinks{ display:flex; gap:22px; flex-wrap:wrap; }
+.navlinks a{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-dim); text-decoration:none; padding-bottom:3px; border-bottom:1px solid transparent;
+  transition:.2s;
+}
+.navlinks a:hover{ color:var(--ink); border-color:var(--p3); }
+@media(max-width:880px){ .navlinks{ display:none; } }
+
+/* ===== HERO ===== */
+.hero{
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(28px,6vw,70px) clamp(18px,6vw,72px) 40px;
+  overflow: hidden;
+
+  /* Background image */
+  background: url("./assets/image.png") center/cover no-repeat;
+}
+
+/* Dark overlay + decorative gradients */
+.hero::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+    radial-gradient(circle at 82% 18%, rgba(214,164,69,.16), transparent 42%),
+    radial-gradient(circle at 8% 82%, rgba(110,147,176,.14), transparent 40%);
+}
+
+/* Keep all content above the overlay */
+.hero > *{
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--p3);
+  margin:0 0 18px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.eyebrow::before{
+  content:"";
+  width:26px;
+  height:1px;
+  background:var(--p3);
+  display:inline-block;
+}
+
+.hero h1{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:clamp(34px,6vw,74px);
+  line-height:1.04;
+  margin:0 0 26px;
+  max-width:16ch;
+  color:var(--paper);
+}
+
+.hero h1 em{
+  font-style:italic;
+  color:var(--p3);
+}
+
+.hero-lede{
+  font-size:clamp(15px,1.7vw,18.5px);
+  color:var(--ink);
+  max-width:640px;
+  line-height:1.65;
+  margin:0 0 34px;
+}
+
+.hero-quote{
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:clamp(16px,2vw,20px);
+  line-height:1.6;
+  max-width:640px;
+  color:var(--ink);
+  border-left:2px solid var(--p3);
+  padding-left:20px;
+  margin:0 0 8px;
+}
+
+.hero-quote-src{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--ink-faint);
+  letter-spacing:.06em;
+  margin:10px 0 0 22px;
+}
+
+.hero-stats{
+  display:flex;
+  gap:clamp(20px,4vw,50px);
+  flex-wrap:wrap;
+  margin-top:44px;
+}
+
+.hstat b{
+  display:block;
+  font-family:var(--serif);
+  font-size:clamp(22px,3vw,32px);
+  color:var(--paper);
+}
+
+.hstat span{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+.scrolldown{
+  position:absolute;
+  bottom:26px;
+  left:clamp(18px,6vw,72px);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.scrolldown .arrow{
+  animation:bob 1.8s infinite ease-in-out;
+}
+
+@keyframes bob{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(5px); }
+}
+
+/* ===== SECTION SHELL ===== */
+section{ padding:clamp(56px,9vw,120px) clamp(18px,6vw,72px); position:relative; }
+.section-head{ max-width:760px; margin-bottom:clamp(30px,4vw,52px); }
+.section-num{ font-family:var(--mono); font-size:11px; color:var(--p3); letter-spacing:.14em; }
+.section-title{ font-family:var(--serif); font-size:clamp(26px,4vw,42px); margin:8px 0 14px; color:var(--paper); line-height:1.14; }
+.section-desc{ color:var(--ink-dim); font-size:15px; line-height:1.7; max-width:64ch; }
+.divider{ height:1px; background:var(--line); margin:0 clamp(18px,6vw,72px); }
+
+/* ===== GRAPH SECTION ===== */
+#graph-section{ padding-top:20px; }
+.graph-wrap{
+  position:relative; width:100%; height:min(760px, 92vh);
+  background:radial-gradient(ellipse at 50% 40%, #0F1E2E 0%, var(--bg-deep) 78%);
+  border:1px solid var(--line); border-radius:14px; overflow:hidden;
+}
+svg#canvas{ width:100%; height:100%; display:block; cursor:grab; }
+svg#canvas:active{ cursor:grabbing; }
+.link{ fill:none; stroke-linecap:round; }
+.link-label{ font-family:var(--mono); font-size:10px; fill:var(--ink-dim); pointer-events:none; letter-spacing:.02em; }
+.link-label-bg{ fill:var(--bg-deep); opacity:.88; }
+.node{ cursor:pointer; }
+.node.dimmed{ opacity:.18; }
+.link.dimmed{ opacity:.06; }
+.link-label.dimmed,.link-label-bg.dimmed{ opacity:0; }
+.node text.node-label{ font-family:var(--serif); fill:var(--ink); text-anchor:middle; pointer-events:none; font-weight:600; }
+.node text.node-sub{ font-family:var(--mono); fill:var(--ink-dim); text-anchor:middle; pointer-events:none; font-size:9.5px; letter-spacing:.05em; }
+.action-node{ font-family:var(--mono); font-size:9px; fill:#8fb3b5; }
+
+.graph-controls{
+  position:absolute; bottom:16px; left:16px; z-index:5; display:flex; gap:8px; flex-wrap:wrap;
+}
+.graph-controls button{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+  background:rgba(237,230,214,0.06); border:1px solid var(--line-strong); color:var(--ink-dim);
+  padding:8px 13px; border-radius:6px; cursor:pointer;
+}
+.graph-controls button:hover{ color:var(--ink); border-color:var(--p3); }
+.graph-hint{
+  position:absolute; bottom:16px; right:16px; z-index:5; font-family:var(--mono); font-size:10px;
+  color:var(--ink-faint); text-align:right; max-width:220px; line-height:1.5; opacity:.8;
+}
+.legend-row{ display:flex; flex-wrap:wrap; gap:16px; margin-top:18px; }
+.legend-chip{ display:flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; color:var(--ink-dim); }
+.legend-dot{ width:9px; height:9px; border-radius:50%; }
+
+/* ===== SIDE PANEL (graph) ===== */
+.panel{
+  position:absolute; top:0; right:0; height:100%; width:min(360px,90vw);
+  background:rgba(9,18,28,0.96); backdrop-filter:blur(14px);
+  border-left:1px solid var(--line);
+  transform:translateX(100%); transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  z-index:10; overflow-y:auto; padding:24px;
+}
+.panel.open{ transform:translateX(0); }
+.panel-close{ position:absolute; top:14px; right:14px; background:none; border:none; color:var(--ink-dim); font-size:19px; cursor:pointer; }
+.panel-close:hover{ color:var(--ink); }
+.panel-eyebrow{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:8px; }
+.panel h3{ font-family:var(--serif); font-size:21px; margin:0 0 4px; line-height:1.2; }
+.panel .subtitle{ font-size:12.5px; color:var(--ink-dim); margin:0 0 16px; }
+.panel .quote{ font-family:var(--serif); font-style:italic; font-size:14px; line-height:1.55; border-left:2px solid; padding-left:12px; margin:0 0 18px; }
+.panel-section{ margin-bottom:18px; }
+.panel-section h4{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); margin:0 0 8px; }
+.dep-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; }
+.dep-list li{ font-size:12px; color:var(--ink); background:rgba(255,255,255,.04); border-radius:6px; padding:7px 9px; line-height:1.4; }
+.dep-arrow{ color:var(--ink-dim); margin-right:5px; font-family:var(--mono); }
+
+/* ===== PILLAR CARDS ===== */
+.pillar-list{ display:flex; flex-direction:column; gap:14px; }
+.pillar-card{
+  border:1px solid var(--line); border-radius:12px; overflow:hidden;
+  background:rgba(237,230,214,0.02);
+  border-left:3px solid var(--card-color, var(--p1));
+}
+.pillar-head{
+  display:flex; align-items:center; gap:18px; padding:20px clamp(16px,3vw,26px);
+  cursor:pointer; user-select:none;
+}
+.pillar-num{ font-family:var(--serif); font-size:28px; color:var(--card-color); flex-shrink:0; width:44px; }
+.pillar-headtext{ flex:1; min-width:0; }
+.pillar-headtext .k{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--card-color); }
+.pillar-headtext h3{ font-family:var(--serif); font-size:clamp(18px,2.4vw,23px); margin:4px 0 3px; color:var(--paper); }
+.pillar-headtext p{ margin:0; color:var(--ink-dim); font-size:13px; }
+.pillar-urgent{
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  background:var(--card-color); color:var(--bg-deep); padding:3px 8px; border-radius:20px; flex-shrink:0;
+}
+.pillar-chevron{ color:var(--ink-faint); font-size:18px; transition:transform .25s; flex-shrink:0; }
+.pillar-card.open .pillar-chevron{ transform:rotate(180deg); }
+.pillar-body{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+.pillar-card.open .pillar-body{ max-height:4000px; }
+.pillar-body-inner{ padding:0 clamp(16px,3vw,26px) 26px; }
+.pillar-quote{
+  font-family:var(--serif); font-style:italic; font-size:16px; line-height:1.55; color:var(--ink);
+  border-left:2px solid var(--card-color); padding-left:16px; margin:0 0 20px;
+}
+.pillar-meta-row{ display:flex; gap:30px; flex-wrap:wrap; margin-bottom:22px; font-size:12.5px; }
+.pillar-meta-row div span{ display:block; font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:3px; }
+.pillar-meta-row div b{ color:var(--ink); font-weight:500; }
+.subhead{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--card-color); margin:22px 0 12px; }
+.action-item{ display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; line-height:1.55; }
+.action-item:last-child{ border-bottom:none; }
+.action-item .tag{ font-family:var(--mono); font-size:10px; color:var(--card-color); flex-shrink:0; padding-top:1px; }
+.action-item b{ color:var(--paper); font-weight:600; }
+.kpi-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px; }
+.kpi-table th{ text-align:left; font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); padding:7px 10px; border-bottom:1px solid var(--line-strong); }
+.kpi-table td{ padding:9px 10px; border-bottom:1px solid var(--line); color:var(--ink-dim); }
+.kpi-table td:first-child{ color:var(--ink); }
+.kpi-table td.hi{ color:var(--card-color); font-weight:600; }
+.kpi-table tr:last-child td{ border-bottom:none; }
+.level-card{ background:rgba(255,255,255,.03); border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+.level-card .lv{ font-family:var(--mono); font-size:10px; color:var(--card-color); letter-spacing:.08em; }
+.level-card p{ margin:6px 0 0; font-size:13px; color:var(--ink-dim); line-height:1.55; }
+
+/* platform table */
+.platform-table-wrap{ overflow-x:auto; }
+.ptable{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:560px; }
+.ptable th{ text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:8px 10px; border-bottom:1px solid var(--line-strong); }
+.ptable td{ padding:9px 10px; border-bottom:1px solid var(--line); color:var(--ink-dim); }
+.ptable td:first-child{ color:var(--ink); font-weight:600; }
+.urgency{ font-family:var(--mono); font-size:9.5px; padding:3px 8px; border-radius:20px; letter-spacing:.04em; }
+.urgency.critique{ background:var(--p3); color:var(--bg-deep); }
+.urgency.haute{ background:rgba(214,164,69,.18); color:var(--p3); }
+.urgency.moderee{ background:rgba(147,164,176,.15); color:var(--ink-dim); }
+.urgency.maintien{ background:rgba(147,164,176,.1); color:var(--ink-faint); }
+.urgency.ciblee{ background:rgba(110,147,176,.15); color:var(--p4); }
+
+/* ===== DOCTRINE ===== */
+.doctrine-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:2px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+.doctrine-cell{ background:var(--bg); padding:24px; }
+.doctrine-old{ font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); text-decoration:line-through; margin-bottom:10px; }
+.doctrine-new{ font-family:var(--serif); font-size:18px; color:var(--paper); margin-bottom:10px; line-height:1.3; }
+.doctrine-why{ font-size:12.5px; color:var(--ink-dim); line-height:1.55; }
+
+/* ===== CALENDAR ===== */
+.timeline{ position:relative; }
+.tl-track{ position:relative; padding-left:26px; border-left:2px solid var(--line-strong); }
+.tl-phase{ position:relative; padding-bottom:44px; }
+.tl-phase:last-child{ padding-bottom:0; }
+.tl-dot{ position:absolute; left:-33px; top:2px; width:16px; height:16px; border-radius:50%; background:var(--bg); border:2px solid var(--phase-color); }
+.tl-phase-head{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+.tl-phase-head .yr{ font-family:var(--mono); font-size:12px; color:var(--phase-color); letter-spacing:.06em; }
+.tl-phase-head h3{ font-family:var(--serif); font-size:22px; margin:0; color:var(--paper); }
+.tl-items{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
+.tl-item{ background:rgba(255,255,255,.03); border-left:2px solid var(--phase-color); border-radius:4px; padding:10px 12px; font-size:12.5px; color:var(--ink-dim); line-height:1.5; }
+.tl-item b{ color:var(--ink); }
+
+/* ===== GOVERNANCE ===== */
+.gov-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:32px; }
+@media(max-width:860px){ .gov-grid{ grid-template-columns:1fr; } }
+.gov-card{ border:1px solid var(--line); border-radius:12px; padding:24px; background:rgba(237,230,214,.02); }
+.gov-card h4{ font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--p4); margin:0 0 14px; }
+.gov-card ul{ margin:0; padding-left:18px; color:var(--ink-dim); font-size:13px; line-height:1.7; }
+.gov-card li b{ color:var(--ink); }
+.resp-table-wrap{ overflow-x:auto; margin-top:18px; }
+.resp-table{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:640px; }
+.resp-table th{ text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:9px 12px; border-bottom:1px solid var(--line-strong); }
+.resp-table td{ padding:11px 12px; border-bottom:1px solid var(--line); color:var(--ink-dim); vertical-align:top; }
+.resp-table td:first-child{ color:var(--paper); font-weight:600; }
+.resp-swatch{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; }
+
+/* ===== DASHBOARD ===== */
+.dash-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+.dash-tab{
+  font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  background:rgba(237,230,214,.05); border:1px solid var(--line-strong); color:var(--ink-dim);
+  padding:9px 15px; border-radius:20px; cursor:pointer;
+}
+.dash-tab.active{ background:var(--p3); border-color:var(--p3); color:var(--bg-deep); }
+.dash-table-wrap{ display:none; }
+.dash-table-wrap.active{ display:block; }
+.dtable{ width:100%; border-collapse:collapse; font-size:13px; }
+.dtable th{ text-align:left; font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 12px; border-bottom:1px solid var(--line-strong); }
+.dtable td{ padding:12px; border-bottom:1px solid var(--line); color:var(--ink-dim); }
+.dtable td:first-child{ color:var(--paper); font-weight:500; }
+.dtable td.target{ color:var(--p3); font-weight:600; }
+.dtable td.target2035{ color:var(--p2); font-weight:600; }
+
+/* ===== MODEL / SIGNATURE ===== */
+.model-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+.model-card{ border:1px solid var(--line); border-radius:12px; padding:26px; position:relative; }
+.model-num{ font-family:var(--serif); font-size:34px; color:var(--p3); opacity:.5; }
+.model-card h4{ font-family:var(--serif); font-size:19px; margin:8px 0 10px; color:var(--paper); }
+.model-card p{ font-size:13px; color:var(--ink-dim); line-height:1.65; margin:0; }
+
+/* ===== SYNTHESIS / CLOSING ===== */
+.closing{
+  background:linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+  border-top:1px solid var(--line);
+}
+.closing-quote{
+  font-family:var(--serif); font-style:italic; font-size:clamp(19px,2.6vw,27px); line-height:1.5;
+  max-width:820px; color:var(--paper); margin:0 auto 30px;
+}
+.pillars-in-view{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:32px; }
+.piv-card{ border-left:2px solid var(--piv-color); background:rgba(255,255,255,.03); border-radius:6px; padding:16px 18px; }
+.piv-card .k{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--piv-color); }
+.piv-card p{ font-size:12.5px; color:var(--ink-dim); margin:8px 0 0; line-height:1.5; }
+
+footer{
+  padding:32px clamp(18px,6vw,72px) 46px;
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;
+  font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); letter-spacing:.04em;
+}
+
+/* generic reveal */
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+.reveal.in{ opacity:1; transform:none; }
+
+@media (max-width:600px){
+  .pillar-meta-row{ gap:16px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">MAROC 2030 · <b>Diplomatie sportive digitale</b></div>
+  <div class="navlinks">
+    <a href="#graph-section">Système</a>
+    <a href="#pillars-section">Piliers</a>
+    <a href="#doctrine-section">Doctrine</a>
+    <a href="#calendar-section">Calendrier</a>
+    <a href="#gov-section">Gouvernance</a>
+    <a href="#dashboard-section">Indicateurs</a>
+    <a href="#model-section">Le modèle</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Vers Un modèle marocain de <em>diplomatie sportive digitale</em></h1>
+  <p class="hero-lede">La stratégie opérationnelle est composée de cinq piliers systémiquement interdépendants, construits à partir d'une enquête qualitative menée auprès de six experts et confrontés aux grands cadres théoriques du soft power, du nation branding et de la diplomatie publique digitale. Le Mondial FIFA 2030 en est le jalon central, pas l'horizon terminal.</p>
+  <blockquote class="hero-quote">« Le Maroc transforme la Coupe du Monde 2030 en laboratoire d'une modernité africaine ouverte, où le football sert de passerelle durable entre justice sociale, innovation numérique et dialogue intercontinental. »</blockquote>
+  <div class="hero-quote-src">— Vision 2030</div>
+  <div class="hero-stats">
+    <div class="hstat"><b>5</b><span>Piliers stratégiques</span></div>
+    <div class="hstat"><b>25</b><span>Actions prioritaires</span></div>
+    <div class="hstat"><b>40+</b><span>Indicateurs de performance</span></div>
+    <div class="hstat"><b>2026–2035</b><span>Horizon stratégique</span></div>
+  </div>
+  <div class="scrolldown"><span class="arrow">↓</span> explorer le système</div>
+</header>
+
+<div class="zellige-rule"></div>
+
+<!-- ============ GRAPH ============ -->
+<section id="graph-section">
+  <div class="section-head reveal">
+    <div class="section-num">01 — Un système, pas une juxtaposition</div>
+    <h2 class="section-title">La cartographie des dépendances stratégiques</h2>
+    <p class="section-desc">« La transparence institutionnelle est la condition de crédibilité de la communication ; la communication authentique est la condition d'engagement de la diaspora ; et l'engagement de la diaspora alimente l'héritage post-Mondial. ».</p>
+    <p class="section-desc">Cliquez un pilier pour explorer son détail ; faites glisser les nœuds pour réorganiser la carte.</p>
+  </div>
+  <div class="graph-wrap reveal">
+    <svg id="canvas"></svg>
+    <div class="graph-controls">
+      <button id="btn-reset">Réinitialiser la vue</button>
+      <button id="btn-expand">Déplier les actions</button>
+    </div>
+    <div class="graph-hint">Glisser pour déplacer · molette pour zoomer · clic sur un nœud pour le détail</div>
+    <aside class="panel" id="panel">
+      <button class="panel-close" id="panel-close">✕</button>
+      <div id="panel-content"></div>
+    </aside>
+  </div>
+  <div class="legend-row reveal" id="legend"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ PILLARS ============ -->
+<section id="pillars-section">
+  <div class="section-head reveal">
+    <div class="section-num">02 — Cinq piliers, un chef de file chacun</div>
+    <h2 class="section-title">Les cinq piliers de la stratégie</h2>
+    <p class="section-desc">Les piliers ne sont pas séquentiels : ils se déploient en parallèle, avec des intensités différentes selon les phases du calendrier. Chaque pilier dispose d'un chef de file identifié, d'actions concrètes et d'indicateurs de performance chiffrés.</p>
+  </div>
+  <div class="pillar-list reveal" id="pillar-list"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ DOCTRINE ============ -->
+<section id="doctrine-section">
+  <div class="section-head reveal">
+    <div class="section-num">03 — Quatre ruptures assumées</div>
+    <h2 class="section-title">La doctrine de communication</h2>
+    <p class="section-desc">La stratégie rompt explicitement avec quatre habitudes identifiées comme des freins structurels par les experts.</p>
+  </div>
+  <div class="doctrine-grid reveal" id="doctrine-grid"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ CALENDAR ============ -->
+<section id="calendar-section">
+  <div class="section-head reveal">
+    <div class="section-num">04 — 2026 → 2032</div>
+    <h2 class="section-title">Calendrier stratégique : quatre phases</h2>
+    <p class="section-desc">Les phases ne sont pas hermétiquement séparées : certaines actions commencent dans une phase et se poursuivent dans les suivantes, en évoluant dans leur intensité et leur nature.</p>
+  </div>
+  <div class="timeline reveal"><div class="tl-track" id="timeline"></div></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ GOVERNANCE ============ -->
+<section id="gov-section">
+  <div class="section-head reveal">
+    <div class="section-num">05 — Piloter la stratégie</div>
+    <h2 class="section-title">Architecture de gouvernance</h2>
+    <p class="section-desc">Une stratégie n'existe que si elle est pilotée. Cette architecture de gouvernance de la stratégie est distincte de la gouvernance de l'organisation du Mondial, qui relève de la Fondation Maroc 2030.</p>
+  </div>
+  <div class="gov-grid reveal">
+    <div class="gov-card">
+      <h4>Comité stratégique transversal</h4>
+      <ul>
+        <li><b>Fréquence</b> — réunion trimestrielle · organe de pilotage de haut niveau</li>
+        <li><b>Membres permanents</b> — Directeur de la Fondation Maroc 2030 (président), Président de la FRMF, Ministre de la Communication, Directeur du Conseil de la communauté marocaine à l'étranger, Wali des régions hôtes</li>
+        <li><b>Membres associés</b> — 3 représentants de la société civile (sport, culture, jeunesse), 2 représentants de la diaspora, 2 experts indépendants (communication internationale, gouvernance sportive)</li>
+        <li><b>Missions</b> — valider les arbitrages inter-piliers, suivre les indicateurs du tableau de bord global, décider des réajustements en cas de crise, valider les rapports publics annuels</li>
+        <li><b>Transparence</b> — comptes-rendus publiés en ligne dans les 15 jours suivant chaque séance</li>
+      </ul>
+    </div>
+    <div class="gov-card">
+      <h4>Pourquoi un comité transversal</h4>
+      <p style="font-size:13px;color:var(--ink-dim);line-height:1.7;margin:0;">L'une des limites les plus clairement identifiées dans le diagnostic est la fragmentation institutionnelle qui affecte la coordination des acteurs marocains de la diplomatie sportive. Sa composition mixte — institutionnelle, civile et experte — garantit que la stratégie ne glisse pas vers une logique bureaucratique déconnectée de la réalité de terrain.</p>
+    </div>
+  </div>
+  <div class="resp-table-wrap reveal">
+    <table class="resp-table" id="resp-table"></table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ DASHBOARD ============ -->
+<section id="dashboard-section">
+  <div class="section-head reveal">
+    <div class="section-num">06 — 2026 → 2035</div>
+    <h2 class="section-title">Tableau de bord global des indicateurs</h2>
+    <p class="section-desc">Le tableau de bord couvre les cinq piliers et s'étend jusqu'en 2035 pour capturer les effets à long terme — le véritable test de la diplomatie sportive digitale marocaine.</p>
+  </div>
+  <div class="dash-tabs reveal" id="dash-tabs"></div>
+  <div id="dash-tables" class="reveal"></div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ MODEL ============ -->
+<section id="model-section">
+  <div class="section-head reveal">
+    <div class="section-num">07 — Contribution à la littérature</div>
+    <h2 class="section-title">Vers un modèle marocain original</h2>
+    <p class="section-desc">La stratégie proposée n'est pas une adaptation des modèles existants. Elle constitue, dans son articulation spécifique, une contribution originale à la littérature sur la diplomatie sportive digitale des nations émergentes. Quatre dimensions en font la singularité.</p>
+  </div>
+  <div class="model-grid reveal" id="model-grid"></div>
+</section>
+
+<!-- ============ CLOSING / SYNTHESIS ============ -->
+<section class="closing" id="synthesis-section">
+  <div class="section-head reveal" style="max-width:820px;">
+    <div class="section-num">Synthèse</div>
+    <h2 class="section-title">La stratégie en un regard</h2>
+  </div>
+  <blockquote class="closing-quote reveal">« Le véritable test de cette stratégie ne sera pas la qualité de l'organisation du Mondial, ni même l'intensité de la couverture médiatique internationale en juillet 2030. Il sera dans la capacité du Maroc à montrer, cinq ans après l'événement, que la fenêtre historique aura été transformée en trajectoire durable. »</blockquote>
+  <div class="pillars-in-view reveal" id="synthesis-grid"></div>
+</section>
+
+<footer>
+  <div>Partie III · Chapitre 9 — Stratégie opérationnelle de diplomatie sportive digitale, Maroc 2030</div>
+  <div>Cartographie interactive · d3.js</div>
+</footer>
+
+<script>
+/* ============================================================
+   DONNÉES — fidèles au Chapitre 9 du document
+   ============================================================ */
+const COLORS = { vision:"#EDE6D6", p1:"#C0524F", p2:"#2F9C82", p3:"#D6A445", p4:"#6E93B0", p5:"#9C7B4F" };
+
+const PILLARS = [
+  {
+    id:"p1", color:COLORS.p1, num:"01",
+    title:"Gouvernance & Transparence",
+    subtitle:"Fonder la crédibilité internationale sur des bases institutionnelles solides",
+    quote:"La transparence n'est pas une option éthique : c'est une nécessité stratégique absolue.",
+    lead:"Fondation Maroc 2030",
+    partners:"FRMF, Cour des Comptes, Ministère de l'Éducation Nationale, du Préscolaire et des Sports",
+    coordination:"Comité de transparence mensuel — rapport public trimestriel",
+    actions:[
+      ["1.1","Architecture de gouvernance clarifiée","Définir et rendre public le schéma de gouvernance de l'organisation du Mondial : mandats, responsabilités et lignes de redevabilité de chaque acteur (Fondation Maroc 2030, FRMF, ministères, collectivités, partenaires privés). Nommer un chef de file unique, visible et mandaté."],
+      ["1.2","Politique proactive de transparence financière","Publication trimestrielle obligatoire des rapports financiers et d'activité pour l'ensemble des fédérations sportives nationales. Objectif : passer de 7 % (2017) à 80 % en 2027, puis 95 % en 2030."],
+      ["1.3","Standards internationaux de reporting","Certifier l'organisation du Mondial selon la norme ISO 20121 et le référentiel GRI pour la responsabilité sociale. Mandater un audit international indépendant annuel dès 2027."],
+      ["1.4","Gouvernance inclusive de la Fondation Maroc 2030","Intégrer des représentants de la société civile, du sport non-footballistique et des associations de défense des droits dans les instances de pilotage. Publier les comptes-rendus des réunions."],
+      ["1.5","Portail de données ouvertes","Créer un portail public multilingue (AR/FR/EN/ES/PT) agrégant en temps réel les données budgétaires, l'avancement des chantiers, les audits et les bilans d'impact."]
+    ],
+    kpiCols:["Indicateur","Baseline 2026","Cible 2028","Cible 2030"],
+    kpis:[
+      ["% fédérations publiant leurs rapports","~7 % (2017)","60 %","95 %"],
+      ["Certification ISO 20121","Non certifié","En cours","Certifié"],
+      ["Score gouvernance FIFA / Transparency Int.","Non mesuré","Intégré au tableau de bord","Top 30 mondial"],
+      ["Couverture médiatique positive sur la gouvernance","Quasi nulle","En progression","Positive et documentée"]
+    ]
+  },
+  {
+    id:"p2", color:COLORS.p2, num:"02",
+    title:"Méta-récit national",
+    subtitle:"Incarner la pluralité dans des expériences concrètes, non dans des slogans",
+    quote:"Le problème marocain n'est pas identitaire, il est communicationnel.",
+    lead:"Ministère de la Jeunesse, de la Culture et de la Communication",
+    partners:"Min. Culture, artistes, universités, créateurs",
+    coordination:"Comité éditorial bi-mensuel — charte narrative publique",
+    actions:[
+      ["2.1","Co-création ouverte du fil narratif national","Appel à co-création de la phrase directrice nationale — non un slogan commercial, le fil narratif stratégique — avec artistes, créateurs, universitaires et diaspora. Jury mixte institutions + société civile + experts indépendants."],
+      ["2.2","Quatre axes narratifs incarnés","Profondeur historique (Al-Andalus, échanges judéo-islamiques) · Modernité africaine (demi-finale 2022, diaspora africaine) · Cultures amazighes (langues, arts, territoires) · Jeunesse et dépassement — en intégrant les tensions plutôt qu'en les édulcorant."],
+      ["2.3","Expériences culturelles immersives, villes hôtes et non hôtes","Circuits dans les médinas, résidences d'artistes, festivals de musiques du monde — y compris à Fès, Tanger, Essaouira, Taroudant, pour éviter la concentration exclusive sur les stades."],
+      ["2.4","Doctrine de communication de crise préparée à l'avance","Distinguer la critique légitime (dialogue, reconnaissance des limites) de l'instrumentalisation politique (données et preuves, sans posture défensive). Formation des porte-paroles dès 2027."],
+      ["2.5","Mini-série ibéro-maghrébine coproduite","Six épisodes coproduits avec des créateurs espagnols et portugais, valorisant les liens d'Al-Andalus tout en assumant les mémoires coloniales. Sous-titrée en cinq langues."]
+    ],
+    kpiCols:["Indicateur","Baseline 2026","Cible 2028","Cible 2030"],
+    kpis:[
+      ["Score de différenciation du récit (sondages)","Non mesuré","Mesure de référence établie","Progression de +15 pts"],
+      ["Volume de contenus tiers reprenant les axes narratifs","Faible","En croissance structurée","Dominant dans les conversations mondiales"],
+      ["Nombre d'expériences culturelles déployées","0","15 dans 8 villes","40+ dans 12 villes"],
+      ["Tonalité des articles de presse internationale","Neutre / exotique","Nuancée et profonde","Complexe et respectueuse"]
+    ]
+  },
+  {
+    id:"p3", color:COLORS.p3, num:"03", urgent:true,
+    title:"Révolution digitale",
+    subtitle:"Opérer la transition du message à la conversation sur toutes les plateformes",
+    quote:"TikTok est le point aveugle de la stratégie digitale nationale.",
+    lead:"Agence digitale dédiée Maroc 2030",
+    partners:"Créateurs, plateformes, agences de social listening",
+    coordination:"Dashboard partagé en temps réel — réunion hebdomadaire",
+    actions:[
+      ["3.1","Programme TikTok Maroc 2030 — urgence maximale, dès 2026","Contractualiser 50 créateurs (Maroc + diaspora) sur sport, culture, quotidien, identité, gastronomie, musique. Liberté créative totale — aucun texte imposé. Lignes rouges limitées à l'ordre public et à la représentation officielle incorrecte."],
+      ["3.2","Stratégie différenciée par plateforme","Adapter format, ton et priorité à la grammaire propre de chaque plateforme — voir tableau ci-dessous."],
+      ["3.3","Programmes de co-création structurés","Appels à projets pour web-séries en 6 épisodes, concours de storytelling ouvert à la diaspora mondiale, soutien à des documentaires indépendants, partenariats avec vidéastes, photographes et podcasteurs."],
+      ["3.4","Veille réputationnelle multilingue 24/7","Système de monitoring temps réel (AR/FR/EN/ES/PT) déployé sur 18 mois (2026–2027). Dashboards partagés entre Fondation Maroc 2030, FRMF, Min. Tourisme et Min. des Affaires Étrangères. Réponse aux crises en moins de 4 heures."],
+      ["3.5","Charte numérique Maroc 2030","Formaliser publiquement les principes de la communication digitale du Mondial : authenticité, inclusion, pluralité des voix, respect des droits."]
+    ],
+    kpiCols:["Indicateur","Baseline 2026","Cible 2030","Cible 2035"],
+    kpis:[
+      ["Reach organique TikTok institutionnel + créateurs","Très faible","Top 3 destinations Afrique","Leader régional"],
+      ["Taux d'engagement moyen (tous canaux)","< 1 %","> 4 %","> 6 %"],
+      ["Part de voix positive sur les conversations Mondial 2030","Non mesurée","> 60 %","Mesure continue"],
+      ["Délai moyen de réponse en situation de crise","Non mesuré","< 4 heures","< 2 heures"]
+    ],
+    platforms:[
+      ["TikTok","18–34 ans, monde entier","Vidéo courte authentique (15–60s)","Taux d'engagement / reach organique","critique"],
+      ["Instagram","25–40 ans, touristes potentiels","Visuels HD + Reels + Stories","Sauvegardes + partages","haute"],
+      ["YouTube","Tous âges, documentaire","Mini-doc + portraits (8–15 min)","Watch time + abonnements","haute"],
+      ["X / Twitter","Journalistes, diplomates, experts","Textes courts + infographies","Reprise médiatique","moderee"],
+      ["Facebook","35+ ans, diaspora","Articles + vidéos moyennes","Portée communautaire","maintien"],
+      ["LinkedIn","Décideurs, investisseurs","Articles longs + données","Connexions B2B","ciblee"]
+    ]
+  },
+  {
+    id:"p4", color:COLORS.p4, num:"04",
+    title:"Diplomatie de la diaspora",
+    subtitle:"De l'instrumentalisation à la co-production",
+    quote:"Reconnaissance symbolique de la diaspora dans la communication officielle du Mondial — pas comme relais, mais comme co-organisatrice morale.",
+    lead:"Conseil de la communauté marocaine à l'étranger",
+    partners:"Ambassades, chambres de commerce, associations",
+    coordination:"Réunions trimestrielles par région — plateforme de réseau",
+    levels:[
+      ["Niveau 1 — Individuel","Programme « Ambassadeurs Maroc 2030 » contractualisant 200 personnalités de la diaspora à forte audience (sport, culture, tech, entrepreneuriat, arts). Contrats équilibrés : droits (rémunération juste, liberté de ton) et obligations (alignement sur le méta-récit, transparence). Aucun diktat de message."],
+      ["Niveau 2 — Communautaire","Plateforme numérique reliant les communautés marocaines du monde sur quatre thématiques : investissement, tourisme culturel et familial, mentorat des jeunes, retour et soft-atterrissage. Gérée par des représentants élus des diasporas, non par une institution officielle."],
+      ["Niveau 3 — Institutionnel","Mentorat inversé : des talents diasporiques forment des jeunes Marocains dans le numérique, la culture et le sport. Passerelles vers les secteurs économiques (bourses, incubateurs, zones franches)."]
+    ],
+    actions:[
+      ["4.1","Tournées diaspora pré-Mondial","Dans les 8 principales villes de résidence (Paris, Bruxelles, Amsterdam, Madrid, Montréal, New York, Dubaï, Dakar) : match de qualification, exposition culturelle, rencontre économique. Financement mixte public-privé. 12 à 18 mois avant le Mondial."],
+      ["4.2","Fonds de création diasporique","Fonds annuel de soutien à la création culturelle et numérique marocaine produite hors du Maroc. Critères : authenticité, ancrage diasporique, visibilité internationale. Jury mixte diaspora-institution."],
+      ["4.3","Enquête annuelle d'appartenance","Mesurer chaque année le sentiment d'appartenance, la fierté nationale et la propension à agir comme ambassadeur informel. Les résultats informent les ajustements du programme."]
+    ],
+    kpiCols:["Indicateur","Baseline 2026","Cible 2028","Cible 2030"],
+    kpis:[
+      ["Ambassadeurs actifs par territoire","Non structuré","100 / 15 pays","200+ / 30 pays"],
+      ["Contenus générés par la diaspora sur le Mondial","Organiques non coordonnés","Croissance structurée","Top 3 sources de contenu"],
+      ["Sentiment d'appartenance (enquête)","Non mesuré","Mesure de référence","Progression de +20 pts"],
+      ["Participants aux tournées diaspora","0","50 000","200 000"]
+    ]
+  },
+  {
+    id:"p5", color:COLORS.p5, num:"05",
+    title:"Héritage post-2030",
+    subtitle:"L'héritage se prépare dès aujourd'hui, pas en 2031",
+    quote:"Le véritable succès de 2030 se mesurera en 2040.",
+    lead:"Fondation Maroc 2030 + Collectivités",
+    partners:"Secteur privé, société civile, FIFA Legacy Fund",
+    coordination:"Comité d'héritage semestriel — rapport annuel public",
+    actions:[
+      ["5.1","Plan d'héritage infrastructurel","Associer à chaque stade et équipement majeur un plan d'usage post-Mondial documenté : modèle économique, gouvernance tripartite (État + collectivité + privé), calendrier d'activation. Objectif : 100 % des équipements couverts en 2028."],
+      ["5.2","Héritage pour la jeunesse et les territoires","Conditionner 15 à 20 % des marchés publics liés au Mondial à des engagements vérifiables d'embauche et de formation de jeunes issus des régions non-hôtes. Programme national de volontariat (cible : 50 000 volontaires formés et certifiés)."],
+      ["5.3","Héritage pour le sport féminin et les sports minoritaires","Intégrer le football féminin et au moins cinq sports non-football dans le storytelling officiel. Fonds de développement du sport féminin alimenté par 2 % des recettes du Mondial."],
+      ["5.4","Héritage diplomatique structuré","Transformer les réactions internationales positives de 2022–2030 en partenariats durables : échanges académiques, co-investissements sportifs, programmes de développement du football africain. Positionner le Maroc comme hub sportif africain avec une responsabilité redistributive."],
+      ["5.5","Rapport annuel d'héritage public (2028–2035)","Rapport structuré selon des indicateurs standardisés, audité par un cabinet indépendant, traduit en cinq langues et diffusé sur toutes les plateformes."]
+    ],
+    kpiCols:["Indicateur","Baseline 2026","Cible 2030","Cible 2035"],
+    kpis:[
+      ["Équipements avec modèle post-Mondial documenté","0 %","100 %","80 % opérationnels"],
+      ["Jeunes formés / volontaires Mondial","0","50 000","150 000"],
+      ["Investissement sport féminin (% recettes Mondial)","Non fléché","2 % fléché","En croissance autonome"],
+      ["Partenariats diplomatiques post-Mondial","Non structurés","20 signés","50+ actifs"],
+      ["Rapport d'héritage public annuel","Inexistant","Publié depuis 2028","Référence internationale"]
+    ]
+  }
+];
+
+// dépendances réelles décrites au §9.6.1 du document
+const DEPENDENCIES = [
+  { source:"p1", target:"p2"},
+  { source:"p1", target:"p3"},
+  { source:"p2", target:"p4"},
+  { source:"p3", target:"p4"},
+  { source:"p4", target:"p5"}
+];
+
+// const DEPENDENCIES = [
+//   { source:"p1", target:"p2", label:"condition de crédibilité" },
+//   { source:"p1", target:"p3", label:"condition de crédibilité" },
+//   { source:"p2", target:"p4", label:"récit à co-porter" },
+//   { source:"p3", target:"p4", label:"outille la diaspora" },
+//   { source:"p4", target:"p5", label:"alimente l'héritage" }
+// ];
+
+const DOCTRINE = [
+  ["Communication par coups d'éclat discontinus","Trajectoire narrative lisible et continue","La crédibilité se construit dans la durée, pas dans l'instant"],
+  ["Logique du message descendant et contrôlé","Logique de la conversation participative","L'authenticité perçue prime sur la sophistication formelle"],
+  ["Posture défensive face aux critiques","Communication droite, courageuse et nuancée","Distinguer critique légitime et instrumentalisation politique"],
+  ["Diaspora comme relais de diffusion","Diaspora comme co-auteure du récit national","La crédibilité endogène est irremplaçable par l'institutionnel"]
+];
+
+const PHASES = [
+  { name:"Phase 1 — Fondation", years:"2026 – 2027", color:COLORS.p1, items:[
+    "Clarifier l'architecture de gouvernance et publier le schéma de responsabilités (P1)",
+    "Lancer le programme TikTok avec les 50 premiers créateurs contractualisés (P3 — urgent)",
+    "Déployer le dispositif de veille réputationnelle multilingue sur 18 mois (P3)",
+    "Engager la co-création ouverte du méta-récit national (P2)",
+    "Constituer le programme Ambassadeurs Diaspora — 100 ambassadeurs / 15 pays (P4)",
+    "Transparence financière pour 60 % des fédérations sportives (P1)",
+    "Élaborer le plan d'héritage pour 100 % des équipements prévus (P5)",
+    "Constituer le Comité Stratégique Transversal — première réunion"
+  ]},
+  { name:"Phase 2 — Activation", years:"2028 – 2029", color:COLORS.p2, items:[
+    "Stratégie digitale différenciée à pleine capacité sur toutes les plateformes (P3)",
+    "Programme Ambassadeurs Diaspora à 200 membres / 30 pays (P4)",
+    "Premières Tournées Diaspora dans les 8 villes prioritaires (P4)",
+    "Premier Rapport annuel d'héritage public — diffusion en 5 langues (P5)",
+    "95 % des fédérations transparentes — bilan de gouvernance publié (P1)",
+    "Mini-série ibéro-maghrébine coproduite et diffusée (P2)",
+    "Lancement du Fonds de développement du sport féminin (P5)",
+    "Première certification ISO 20121 obtenue (P1)"
+  ]},
+  { name:"Phase 3 — Mondial", years:"2030", color:COLORS.p3, items:[
+    "Activation simultanée des 5 piliers pendant le Mondial",
+    "Centre de veille réputationnelle opérationnel 24/7",
+    "Expériences culturelles immersives dans 12 villes hôtes et non-hôtes",
+    "Tournées diaspora dans les pays participants",
+    "Gestion proactive des crises selon la doctrine préparée",
+    "Documentation en temps réel de l'héritage",
+    "Activation des partenariats diplomatiques bilatéraux",
+    "Publication hebdomadaire du tableau de bord — transparence en direct"
+  ]},
+  { name:"Phase 4 — Consolidation", years:"2031 – 2032", color:COLORS.p5, items:[
+    "Bilan complet : 5 piliers, 25 actions, 40+ KPI",
+    "Rapport post-Mondial exhaustif — audit externe indépendant",
+    "Activation des modèles post-Mondial pour 80 % des équipements (P5)",
+    "Consolidation des partenariats diplomatiques en accords formels (P5)",
+    "Capitalisation des enseignements pour la stratégie 2033–2040",
+    "Positionnement du Maroc comme référence internationale d'héritage sportif",
+    "Transfert de compétences vers les talents formés pour le Mondial",
+    "Premier bilan d'impact sur les indicateurs de réputation internationale"
+  ]}
+];
+
+const RESP_MATRIX = [
+  ["1 · Gouvernance & transparence","p1","Fondation Maroc 2030","FRMF, Cour des Comptes, Ministère de l'Éducation Nationale, du Préscolaire et des Sports","Comité de transparence mensuel — rapport public trimestriel"],
+  ["2 · Méta-récit national","p2","Ministère de la Jeunesse, de la Culture et de la Communication","Min. Culture, artistes, universités, créateurs","Comité éditorial bi-mensuel — charte narrative publique"],
+  ["3 · Révolution digitale","p3","Agence digitale dédiée Maroc 2030","Créateurs, plateformes, agences de social listening","Dashboard partagé en temps réel — réunion hebdomadaire"],
+  ["4 · Diplomatie de la diaspora","p4","Conseil de la communauté marocaine à l'étranger","Ambassades, chambres de commerce, associations","Réunions trimestrielles par région — plateforme de réseau"],
+  ["5 · Héritage post-2030","p5","Fondation Maroc 2030 + Collectivités","Secteur privé, société civile, FIFA Legacy Fund","Comité d'héritage semestriel — rapport annuel public"]
+];
+
+const DASHBOARDS = {
+  "Réputation internationale":{
+    cols:["Indicateur","Baseline 2026","Cible 2030","Cible 2035","Source"],
+    rows:[
+      ["Score RepTrack (Reputation Institute)","51,99 / 100","60 / 100","70 / 100","Rapport annuel RepTrack"],
+      ["Nation Goodwill Observer (%)","41 %","55 %","65 %","Nation Brands Index"],
+      ["Position Soft Power 30 Index","Hors top 30","Top 40","Top 30","Portland / USC"],
+      ["Sentiment positif dans la presse internationale","Non mesuré","55 % positif","65 % positif","Veille réputationnelle"]
+    ]
+  },
+  "Digital & engagement":{
+    cols:["Indicateur","Baseline 2026","Cible 2030","Cible 2035","Source"],
+    rows:[
+      ["Reach organique TikTok institutionnel + créateurs","Très faible","Top 3 destinations Afrique","Leader régional","Rapports plateformes"],
+      ["Taux d'engagement moyen (tous canaux)","< 1 %","> 4 %","> 6 %","Dashboard veille"],
+      ["Part de voix positive — conversations Mondial 2030","Non mesurée","> 60 %","Mesure continue","Social listening"],
+      ["Délai moyen de réponse en situation de crise","Non mesuré","< 4 heures","< 2 heures","Protocole veille"]
+    ]
+  },
+  "Gouvernance & transparence":{
+    cols:["Indicateur","Baseline 2026","Cible 2028","Cible 2030","Cible 2035"],
+    rows:[
+      ["% fédérations publiant rapports financiers","~7 % (2017)","60 %","95 %","100 %"],
+      ["Certification ISO 20121 organisateurs","Non certifié","En cours","Certifié","Renouvelé"],
+      ["Rapports d'héritage publics annuels","Inexistants","Premier publié","3 publiés","7 publiés"],
+      ["Score audit indépendant gouvernance FIFA","Non mesuré","Intégré","Top 30","Top 20"]
+    ]
+  },
+  "Attractivité & héritage":{
+    cols:["Indicateur","Baseline 2026","Cible 2030","Cible 2035","Source"],
+    rows:[
+      ["Visiteurs touristiques annuels","17,4 M (2024)","25 M","30 M premium","Min. Tourisme"],
+      ["Jeunes formés / volontaires Mondial","0","50 000","150 000","Fondation M2030"],
+      ["Équipements avec modèle post-Mondial actif","0 %","100 % planifiés","80 % opérationnels","Fondation M2030"],
+      ["Partenariats diplomatiques post-Mondial","Non structurés","20 signés","50+ actifs","MAE"],
+      ["Investissements étrangers liés au Mondial","Non mesuré","Baseline établie","Progression de +30 %","AMDIE"]
+    ]
+  }
+};
+
+const MODEL_DIMENSIONS = [
+  ["Cohérence intégrée","La transparence institutionnelle (P1) est la condition de crédibilité de la communication (P2 et P3) ; la communication authentique est la condition d'engagement de la diaspora (P4) ; l'engagement de la diaspora alimente l'héritage post-Mondial (P5). Les cinq piliers ne sont pas juxtaposés — ils sont systémiquement interdépendants."],
+  ["Complexité assumée","Le modèle marocain propose d'assumer la complexité et les tensions identitaires comme atouts communicationnels plutôt que comme problèmes à neutraliser — la pluralité d'ancrages et la reconnaissance des contradictions comme source de crédibilité à long terme."],
+  ["Délégation narrative","Rupture avec la tradition du monologue institutionnel : la délégation créative aux créateurs TikTok, aux artistes et à la diaspora devient un principe stratégique central, non une concession contrainte — un pari sur la confiance plutôt que sur le contrôle."],
+  ["Temporalité longue","Un horizon temporel explicitement long — 2035, et non 2030 — avec un héritage intégré dès la phase de préparation, non traité comme un problème résiduel post-événementiel : la transition du coup d'éclat à la trajectoire lisible."]
+];
+
+const SYNTHESIS = [
+  ["p1","Gouvernance","95 % de fédérations transparentes en 2030 · certification ISO 20121 · portail de données ouvertes · audit international annuel"],
+  ["p2","Récit","Méta-récit co-construit · 4 axes narratifs différenciants · 40+ expériences culturelles · mini-série ibéro-maghrébine coproduite"],
+  ["p3","Digital","Programme TikTok 50 créateurs dès 2026 · stratégie différenciée sur 6 plateformes · veille multilingue 24/7 · engagement > 4 % en 2030"],
+  ["p4","Diaspora","200 ambassadeurs / 30 pays · plateforme communautaire autonome · 8 tournées pré-Mondial · fonds de création diasporique"],
+  ["p5","Héritage","Plan post-Mondial pour 100 % des équipements · 50 000 jeunes formés · 20 partenariats diplomatiques · rapport annuel public jusqu'en 2035"]
+];
+
+/* ============================================================
+   RENDER — sections statiques
+   ============================================================ */
+function esc(s){ return s; }
+
+// Legend
+document.getElementById("legend").innerHTML = [
+  {c:COLORS.vision,l:"Vision 2030"},
+  ...PILLARS.map(p=>({c:p.color,l:"Pilier "+p.num+" — "+p.title}))
+].map(i=>`<div class="legend-chip"><span class="legend-dot" style="background:${i.c}"></span>${i.l}</div>`).join("");
+
+// Pillars
+const pillarListEl = document.getElementById("pillar-list");
+pillarListEl.innerHTML = PILLARS.map(p=>`
+  <div class="pillar-card" id="card-${p.id}" style="--card-color:${p.color}">
+    <div class="pillar-head" data-toggle="${p.id}">
+      <div class="pillar-num">${p.num}</div>
+      <div class="pillar-headtext">
+        <div class="k">Pilier ${p.num}${p.lead? " · "+p.lead:""}</div>
+        <h3>${p.title}</h3>
+        <p>${p.subtitle}</p>
+      </div>
+      ${p.urgent? '<div class="pillar-urgent">Priorité critique</div>':''}
+      <div class="pillar-chevron">⌄</div>
+    </div>
+    <div class="pillar-body">
+      <div class="pillar-body-inner">
+        <blockquote class="pillar-quote">${p.quote}</blockquote>
+        <div class="pillar-meta-row">
+          <div><span>Chef de file</span><b>${p.lead}</b></div>
+          <div><span>Partenaires clés</span><b>${p.partners}</b></div>
+          <div><span>Coordination</span><b>${p.coordination}</b></div>
+        </div>
+
+        ${p.levels? `
+        <div class="subhead">Architecture à trois niveaux</div>
+        ${p.levels.map(l=>`<div class="level-card"><div class="lv">${l[0]}</div><p>${l[1]}</p></div>`).join("")}
+        `:""}
+
+        <div class="subhead">Actions ${p.levels? "complémentaires":"prioritaires"}</div>
+        ${p.actions.map(a=>`<div class="action-item"><div class="tag">${a[0]}</div><div><b>${a[1]}</b> — ${a[2]}</div></div>`).join("")}
+
+        ${p.platforms? `
+        <div class="subhead">Stratégie par plateforme</div>
+        <div class="platform-table-wrap"><table class="ptable">
+          <tr><th>Plateforme</th><th>Cible prioritaire</th><th>Format dominant</th><th>KPI central</th><th>Urgence</th></tr>
+          ${p.platforms.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td><span class="urgency ${r[4]}">${r[4]==='critique'?'CRITIQUE':r[4]==='haute'?'HAUTE':r[4]==='moderee'?'MODÉRÉE':r[4]==='maintien'?'MAINTIEN':'CIBLÉE'}</span></td></tr>`).join("")}
+        </table></div>
+        `:""}
+
+        <div class="subhead">Indicateurs de performance</div>
+        <table class="kpi-table">
+          <tr>${p.kpiCols.map(c=>`<th>${c}</th>`).join("")}</tr>
+          ${p.kpis.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="hi">${r[3]}</td></tr>`).join("")}
+        </table>
+      </div>
+    </div>
+  </div>
+`).join("");
+
+pillarListEl.querySelectorAll("[data-toggle]").forEach(el=>{
+  el.addEventListener("click", ()=>{
+    document.getElementById("card-"+el.dataset.toggle).classList.toggle("open");
+  });
+});
+
+// Doctrine
+document.getElementById("doctrine-grid").innerHTML = DOCTRINE.map(d=>`
+  <div class="doctrine-cell">
+    <div class="doctrine-old">${d[0]}</div>
+    <div class="doctrine-new">${d[1]}</div>
+    <div class="doctrine-why">${d[2]}</div>
+  </div>
+`).join("");
+
+// Timeline
+document.getElementById("timeline").innerHTML = PHASES.map(ph=>`
+  <div class="tl-phase" style="--phase-color:${ph.color}">
+    <div class="tl-dot"></div>
+    <div class="tl-phase-head"><span class="yr">${ph.years}</span><h3>${ph.name.replace(/^Phase \d+ — /,'')}</h3></div>
+    <div class="tl-items">${ph.items.map(i=>`<div class="tl-item">${i}</div>`).join("")}</div>
+  </div>
+`).join("");
+
+// Governance responsibility matrix
+document.getElementById("resp-table").innerHTML = `
+  <tr><th>Pilier</th><th>Chef de file</th><th>Partenaires clés</th><th>Mécanisme de coordination</th></tr>
+  ${RESP_MATRIX.map(r=>`<tr><td><span class="resp-swatch" style="background:${COLORS[r[1]]}"></span>${r[0]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join("")}
+`;
+
+// Dashboard tabs
+const dashNames = Object.keys(DASHBOARDS);
+document.getElementById("dash-tabs").innerHTML = dashNames.map((n,i)=>`<button class="dash-tab ${i===0?'active':''}" data-tab="${i}">${n}</button>`).join("");
+document.getElementById("dash-tables").innerHTML = dashNames.map((n,i)=>{
+  const d = DASHBOARDS[n];
+  return `<div class="dash-table-wrap ${i===0?'active':''}" data-panel="${i}">
+    <table class="dtable">
+      <tr>${d.cols.map(c=>`<th>${c}</th>`).join("")}</tr>
+      ${d.rows.map(r=>`<tr>${r.map((c,ci)=>`<td class="${ci===2?'target':ci===3?'target2035':''}">${c}</td>`).join("")}</tr>`).join("")}
+    </table>
+  </div>`;
+}).join("");
+document.querySelectorAll(".dash-tab").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".dash-tab").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".dash-table-wrap").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelector(`.dash-table-wrap[data-panel="${btn.dataset.tab}"]`).classList.add("active");
+  });
+});
+
+// Model dimensions
+document.getElementById("model-grid").innerHTML = MODEL_DIMENSIONS.map((m,i)=>`
+  <div class="model-card">
+    <div class="model-num">0${i+1}</div>
+    <h4>${m[0]}</h4>
+    <p>${m[1]}</p>
+  </div>
+`).join("");
+
+// Synthesis
+document.getElementById("synthesis-grid").innerHTML = SYNTHESIS.map(s=>`
+  <div class="piv-card" style="--piv-color:${COLORS[s[0]]}">
+    <div class="k">Pilier — ${s[1]}</div>
+    <p>${s[2]}</p>
+  </div>
+`).join("");
+
+/* ============================================================
+   GRAPH — d3 force layout
+   ============================================================ */
+const VISION_NODE = { id:"vision", label:"VISION 2030" };
+const nodes = [], links = [];
+nodes.push({ id:"vision", type:"vision", label:"Vision", color:COLORS.vision });
+PILLARS.forEach(p=>{
+  nodes.push({ id:p.id, type:"pillar", data:p, color:p.color });
+  links.push({ source:"vision", target:p.id, type:"vision-link" });
+  p.actions.forEach((a,i)=>{
+    const aid = p.id+"_a"+i;
+    nodes.push({ id:aid, type:"action", parent:p.id, text:a[1], color:p.color });
+    links.push({ source:p.id, target:aid, type:"action-link" });
+  });
+});
+DEPENDENCIES.forEach(d=>links.push({ ...d, type:"dependency" }));
+
+let expanded = false, selectedPillar = null;
+
+const svg = d3.select("#canvas");
+const graphWrap = document.querySelector(".graph-wrap");
+let width = graphWrap.clientWidth, height = graphWrap.clientHeight;
+const g = svg.append("g");
+const zoom = d3.zoom().scaleExtent([0.3,2.5]).on("zoom", e=>g.attr("transform", e.transform));
+svg.call(zoom);
+
+const linkGroup = g.append("g");
+const labelGroup = g.append("g");
+const nodeGroup = g.append("g");
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d=>d.id).distance(d=>{
+    if(d.type==="vision-link") return 170;
+    if(d.type==="dependency") return 240;
+    return 62;
+  }).strength(d=>d.type==="dependency"?0.22:0.7))
+  .force("charge", d3.forceManyBody().strength(d=>d.type==="vision"?-800:d.type==="pillar"?-460:-80))
+  .force("center", d3.forceCenter(width/2, height/2))
+  .force("collide", d3.forceCollide(d=>d.type==="vision"?64:d.type==="pillar"?50:24));
+
+function visibleNodes(){ return nodes.filter(n=> n.type!=="action" || expanded || n.parent===selectedPillar); }
+function visibleLinkSet(){
+  const vn = new Set(visibleNodes().map(n=>n.id));
+  return links.filter(l=> vn.has(l.source.id||l.source) && vn.has(l.target.id||l.target));
+}
+
+let linkSel, labelBgSel, labelSel, nodeSel;
+
+function render(){
+  const vNodes = visibleNodes();
+  const vLinks = visibleLinkSet();
+
+  linkSel = linkGroup.selectAll("path.link").data(vLinks, d=>(d.source.id||d.source)+"-"+(d.target.id||d.target));
+  linkSel.exit().remove();
+  const linkEnter = linkSel.enter().append("path")
+    .attr("class", d=>"link "+d.type)
+    .attr("stroke", d=> d.type==="dependency" ? "#EDE6D6" : (typeof d.target==="object"? d.target.color : "#888"))
+    .attr("stroke-width", d=> d.type==="dependency"?1.4:d.type==="vision-link"?2.2:1.2)
+    .attr("stroke-opacity", d=> d.type==="dependency"?0.55:d.type==="vision-link"?0.55:0.35)
+    .attr("stroke-dasharray", d=> d.type==="dependency"?"1,5":null);
+  linkSel = linkEnter.merge(linkSel);
+
+  const depLinks = vLinks.filter(d=>d.type==="dependency");
+  labelBgSel = labelGroup.selectAll("rect.link-label-bg").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
+  labelBgSel.exit().remove();
+  labelBgSel = labelBgSel.enter().append("rect").attr("class","link-label-bg").merge(labelBgSel);
+
+  labelSel = labelGroup.selectAll("text.link-label").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
+  labelSel.exit().remove();
+  labelSel = labelSel.enter().append("text").attr("class","link-label").text(d=>d.label).merge(labelSel);
+
+  nodeSel = nodeGroup.selectAll("g.node-g").data(vNodes, d=>d.id);
+  nodeSel.exit().remove();
+
+  const nodeEnter = nodeSel.enter().append("g").attr("class", d=>"node-g node "+d.type)
+    .call(d3.drag().on("start",dragstarted).on("drag",dragged).on("end",dragended))
+    .on("click", (e,d)=>{ e.stopPropagation(); handleNodeClick(d); });
+
+  nodeEnter.each(function(d){
+    const sel = d3.select(this);
+    if(d.type==="vision"){
+      sel.append("circle").attr("r",64).attr("fill",d.color).attr("opacity",0.12);
+      sel.append("circle").attr("r",38).attr("fill","#11202F").attr("stroke",d.color).attr("stroke-width",1.6);
+      sel.append("text").attr("class","node-label").attr("dy",-2).attr("font-size",12.5).text("VISION");
+      sel.append("text").attr("class","node-sub").attr("dy",14).text("2030");
+    } else if(d.type==="pillar"){
+      sel.append("circle").attr("r",50).attr("fill",d.color).attr("opacity",0.12);
+      sel.append("circle").attr("r",32).attr("fill","#11202F").attr("stroke",d.color).attr("stroke-width",2);
+      sel.append("text").attr("class","node-sub").attr("dy",-36).attr("fill",d.color).text("PILIER "+d.data.num);
+      const words = d.data.title.split(" ");
+      const mid = Math.ceil(words.length/2);
+      sel.append("text").attr("class","node-label").attr("dy",-2).attr("font-size",11.5).text(words.slice(0,mid).join(" "));
+      sel.append("text").attr("class","node-label").attr("dy",13).attr("font-size",11.5).text(words.slice(mid).join(" "));
+      if(d.data.urgent) sel.append("circle").attr("r",4).attr("cx",24).attr("cy",-24).attr("fill",d.color);
+    } else {
+      sel.append("circle").attr("r",13).attr("fill","#11202F").attr("stroke",d.color);
+      sel.append("text").attr("class","action-node").attr("dy",23).attr("text-anchor","middle").attr("font-size",9)
+        .text(d.text.length>24? d.text.slice(0,22)+"…" : d.text);
+      sel.append("text").attr("dy",4).attr("text-anchor","middle").attr("font-size",10).attr("fill",d.color).text("●");
+    }
+  });
+
+  nodeSel = nodeEnter.merge(nodeSel);
+  simulation.nodes(vNodes);
+  simulation.force("link").links(vLinks);
+  simulation.alpha(0.9).restart();
+}
+
+function tick(){
+  linkSel.attr("d", d=>{
+    const sx=d.source.x, sy=d.source.y, tx=d.target.x, ty=d.target.y;
+    if(d.type==="dependency"){ const mx=(sx+tx)/2, my=(sy+ty)/2-42; return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`; }
+    return `M${sx},${sy} L${tx},${ty}`;
+  });
+  labelSel.attr("x", d=>(d.source.x+d.target.x)/2).attr("y", d=>(d.source.y+d.target.y)/2-42).attr("text-anchor","middle");
+  labelBgSel.attr("x", function(d,i){ const n=labelSel.nodes()[i]; const bb=n?n.getBBox():{width:0}; return ((d.source.x+d.target.x)/2)-bb.width/2-4; })
+    .attr("y", d=>(d.source.y+d.target.y)/2-42-10)
+    .attr("width", function(d,i){ const n=labelSel.nodes()[i]; const bb=n?n.getBBox():{width:0}; return bb.width+8; })
+    .attr("height",14);
+  nodeSel.attr("transform", d=>`translate(${d.x},${d.y})`);
+}
+simulation.on("tick", tick);
+
+function dragstarted(e,d){ if(!e.active) simulation.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; }
+function dragged(e,d){ d.fx=e.x; d.fy=e.y; }
+function dragended(e,d){ if(!e.active) simulation.alphaTarget(0); d.fx=null; d.fy=null; }
+
+function highlight(pillarId){
+  nodeSel.classed("dimmed", d=>{
+    if(!pillarId) return false;
+    if(d.type==="vision") return false;
+    if(d.type==="pillar") return d.id!==pillarId;
+    return d.parent!==pillarId;
+  });
+  linkSel.classed("dimmed", d=>{
+    if(!pillarId) return false;
+    const s=d.source.id||d.source, t=d.target.id||d.target;
+    if(d.type==="action-link") return s!==pillarId;
+    if(d.type==="vision-link") return false;
+    return s!==pillarId && t!==pillarId;
+  });
+}
+
+const panel = document.getElementById("panel");
+const panelContent = document.getElementById("panel-content");
+function openPanel(html){ panelContent.innerHTML = html; panel.classList.add("open"); }
+function closePanel(){ panel.classList.remove("open"); }
+document.getElementById("panel-close").onclick = ()=>{ closePanel(); selectedPillar=null; render(); highlight(null); };
+
+function visionPanelContent(){
+  return `
+    <span class="panel-eyebrow" style="color:${COLORS.vision}">Vision stratégique</span>
+    <h3>Vision 2030</h3>
+    <p class="subtitle">Le centre de gravité de tous les piliers</p>
+    <blockquote class="quote" style="border-color:${COLORS.vision}">« Le Maroc transforme la Coupe du Monde 2030 en laboratoire d'une modernité africaine ouverte, où le football sert de passerelle durable entre justice sociale, innovation numérique et dialogue euro-méditerranéen. »</blockquote>
+    <div class="panel-section">
+      <h4>Les cinq piliers qui en découlent</h4>
+      <ul class="dep-list">${PILLARS.map(p=>`<li><span class="dep-arrow" style="color:${p.color}">●</span>${p.title}</li>`).join("")}</ul>
+    </div>
+    <div class="panel-section">
+      <h4>Logique du système — §9.6.1</h4>
+      <p style="font-size:12px;color:var(--ink-dim);line-height:1.6">La transparence (P1) conditionne la crédibilité du récit (P2) et du digital (P3) ; ces deux derniers donnent à la diaspora (P4) un récit authentique à co-porter ; l'engagement de la diaspora alimente à son tour l'héritage (P5).</p>
+    </div>`;
+}
+function pillarPanelContent(p){
+  const incoming = DEPENDENCIES.filter(d=>d.target===p.id);
+  const outgoing = DEPENDENCIES.filter(d=>d.source===p.id);
+  const nameOf = id => PILLARS.find(x=>x.id===id).title;
+  return `
+    <span class="panel-eyebrow" style="color:${p.color}">Pilier ${p.num}${p.urgent?" · Priorité critique":""}</span>
+    <h3>${p.title}</h3>
+    <p class="subtitle">${p.subtitle}</p>
+    <blockquote class="quote" style="border-color:${p.color}">${p.quote}</blockquote>
+    ${incoming.length? `<div class="panel-section"><h4>Dépend de</h4><ul class="dep-list">${incoming.map(d=>`<li><span class="dep-arrow">←</span>${nameOf(d.source)} — <em>${d.label}</em></li>`).join("")}</ul></div>`:""}
+    ${outgoing.length? `<div class="panel-section"><h4>Conditionne</h4><ul class="dep-list">${outgoing.map(d=>`<li><span class="dep-arrow">→</span>${nameOf(d.target)} — <em>${d.label}</em></li>`).join("")}</ul></div>`:""}
+    <div class="panel-section"><h4>Chef de file</h4><p style="font-size:13px;margin:0">${p.lead}</p></div>
+    <div class="panel-section"><h4>Voir le détail complet</h4><p style="font-size:12.5px;color:var(--ink-dim);margin:0">Ouvrez ce pilier dans la section « Les cinq piliers » ci-dessous pour ses actions et indicateurs.</p></div>
+  `;
+}
+function handleNodeClick(d){
+  if(d.type==="vision"){ selectedPillar=null; openPanel(visionPanelContent()); render(); highlight(null); return; }
+  if(d.type==="pillar"){ selectedPillar=d.id; render(); openPanel(pillarPanelContent(d.data)); highlight(d.id); return; }
+  if(d.type==="action"){ selectedPillar=d.parent; render(); const pillar=PILLARS.find(p=>p.id===d.parent); openPanel(pillarPanelContent(pillar)); highlight(d.parent); }
+}
+svg.on("click", ()=>{ selectedPillar=null; closePanel(); render(); highlight(null); });
+
+document.getElementById("btn-reset").onclick = ()=>{
+  svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+  selectedPillar=null; closePanel(); render(); highlight(null);
+};
+document.getElementById("btn-expand").onclick = (e)=>{
+  expanded = !expanded;
+  e.target.textContent = expanded? "Replier les actions" : "Déplier les actions";
+  render();
+};
+
+window.addEventListener("resize", ()=>{
+  width = graphWrap.clientWidth; height = graphWrap.clientHeight;
+  simulation.force("center", d3.forceCenter(width/2, height/2));
+});
+
+render();
+const visionNode = nodes.find(n=>n.id==="vision");
+visionNode.fx = width/2; visionNode.fy = height/2;
+setTimeout(()=>{ visionNode.fx=null; visionNode.fy=null; }, 1800);
+PILLARS.forEach((p,i)=>{
+  const angle = (i/PILLARS.length)*2*Math.PI - Math.PI/2;
+  const node = nodes.find(n=>n.id===p.id);
+  node.x = width/2 + Math.cos(angle)*230;
+  node.y = height/2 + Math.sin(angle)*230;
+});
+
+/* ============================================================
+   REVEAL ON SCROLL
+   ============================================================ */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+},{ threshold:0.12 });
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
