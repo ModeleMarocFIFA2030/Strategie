@@ -1045,7 +1045,6 @@ function render(){
   const depLinks = vLinks.filter(d=>d.type==="dependency");
   labelBgSel = labelGroup.selectAll("rect.link-label-bg").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
   labelBgSel.exit().remove();
-  labelBgSel = labelBgSel.enter().append("rect").attr("class","link-label-bg").merge(labelBgSel);
 
   labelSel = labelGroup.selectAll("text.link-label").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
   labelSel.exit().remove();
