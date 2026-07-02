@@ -82,7 +82,7 @@ nav.topnav{
   overflow: hidden;
 
   /* Background image */
-  background: url("./assets/image.png") center/cover no-repeat;
+  background: url("./image.png") center/cover no-repeat;
 }
 
 /* Dark overlay + decorative gradients */
@@ -443,7 +443,7 @@ footer{
 
 <header class="hero">
   <h1>Vers Un modèle marocain de <em>diplomatie sportive digitale</em></h1>
-  <p class="hero-lede">La stratégie opérationnelle est composée de cinq piliers systémiquement interdépendants, construits à partir d'une enquête qualitative menée auprès de six experts et confrontés aux grands cadres théoriques du soft power, du nation branding et de la diplomatie publique digitale. Le Mondial FIFA 2030 en est le jalon central, pas l'horizon terminal.</p>
+  <p class="hero-lede">La stratégie Maroc 2030 est fondée sur cinq piliers systémiquement interdépendants, construits à partir d'une enquête qualitative menée auprès de six experts et confrontés aux grands cadres théoriques du soft power, du nation branding et de la diplomatie publique digitale. Le Mondial FIFA 2030 en est le jalon central, pas l'horizon terminal.</p>
   <blockquote class="hero-quote">« Le Maroc transforme la Coupe du Monde 2030 en laboratoire d'une modernité africaine ouverte, où le football sert de passerelle durable entre justice sociale, innovation numérique et dialogue intercontinental. »</blockquote>
   <div class="hero-quote-src">— Vision 2030</div>
   <div class="hero-stats">
@@ -1045,7 +1045,6 @@ function render(){
   const depLinks = vLinks.filter(d=>d.type==="dependency");
   labelBgSel = labelGroup.selectAll("rect.link-label-bg").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
   labelBgSel.exit().remove();
-  labelBgSel = labelBgSel.enter().append("rect").attr("class","link-label-bg").merge(labelBgSel);
 
   labelSel = labelGroup.selectAll("text.link-label").data(depLinks, d=>(d.source.id||d.source)+(d.target.id||d.target));
   labelSel.exit().remove();
