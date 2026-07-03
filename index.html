@@ -411,10 +411,70 @@ svg#canvas:active{ cursor:grabbing; }
 .piv-card .k{ font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--piv-color); }
 .piv-card p{ font-size:12.5px; color:var(--ink-dim); margin:8px 0 0; line-height:1.5; }
 
-footer{
-  padding:32px clamp(18px,6vw,72px) 46px;
-  display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;
-  font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); letter-spacing:.04em;
+.footer{
+    margin-top:40px;
+    padding:40px clamp(20px,6vw,70px);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:40px;
+
+    background:linear-gradient(180deg,var(--bg),var(--bg-deep));
+    border-top:1px solid var(--line);
+}
+
+.footer-logo img{
+    width:110px;
+    height:auto;
+    object-fit:contain;
+    opacity:.9;
+    transition:.3s;
+}
+
+.footer-logo img:hover{
+    opacity:1;
+    transform:scale(1.05);
+}
+
+.footer-content{
+    flex:1;
+    text-align:center;
+}
+
+.footer-content h3{
+    margin:0 0 12px;
+    font-family:var(--serif);
+    font-size:24px;
+    color:var(--paper);
+}
+
+.footer-content p{
+    margin:4px 0;
+    color:var(--ink-dim);
+    font-size:14px;
+}
+
+.footer-content span{
+    display:block;
+    margin-top:18px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--ink-faint);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+@media (max-width:768px){
+
+    .footer{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .footer-logo img{
+        width:90px;
+    }
 }
 
 /* generic reveal */
@@ -581,16 +641,23 @@ footer{
   <div class="pillars-in-view reveal" id="synthesis-grid"></div>
 </section>
 
-<footer>
-  <div>
-    <img src="./Image2.png"/>
+<footer class="footer">
+  <div class="footer-logo">
+    <img src="./Image2.png" alt="Université Abdelmalek Essaâdi">
   </div>
-  <div>Stratégie Maroc 2030</div>
-  <div>UNIVERSITÉ ABDELMALEK ESSAÂDI</div>
-  <div>Faculté des Lettres et des Sciences Humaines</div>
-  <div>Master Stratégies de la Communication Digitale</div>
-  <div>
-    <img src="./Image1.png"/>
+
+  <div class="footer-content">
+    <h3>Stratégie Maroc 2030</h3>
+
+    <p>Université Abdelmalek Essaâdi</p>
+    <p>Faculté des Lettres et des Sciences Humaines</p>
+    <p>Master Stratégies de la Communication Digitale</p>
+
+    <span>© 2026 — Tous droits réservés</span>
+  </div>
+
+  <div class="footer-logo">
+    <img src="./Image1.png" alt="Master SCD">
   </div>
 </footer>
 
