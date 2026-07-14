@@ -1266,8 +1266,8 @@ function pillarPanelContent(p){
     <h3>${p.title}</h3>
     <p class="subtitle">${p.subtitle}</p>
     <blockquote class="quote" style="border-color:${p.color}">${p.quote}</blockquote>
-    ${incoming.length? `<div class="panel-section"><h4>Dépend de</h4><ul class="dep-list">${incoming.map(d=>`<li><span class="dep-arrow">←</span>${nameOf(d.source)} — <em>${d.label}</em></li>`).join("")}</ul></div>`:""}
-    ${outgoing.length? `<div class="panel-section"><h4>Conditionne</h4><ul class="dep-list">${outgoing.map(d=>`<li><span class="dep-arrow">→</span>${nameOf(d.target)} — <em>${d.label}</em></li>`).join("")}</ul></div>`:""}
+    ${incoming.length? `<div class="panel-section"><h4>Dépend de</h4><ul class="dep-list">${incoming.map(d=>`<li><span class="dep-arrow">←</span>${nameOf(d.source)}</li>`).join("")}</ul></div>`:""}
+    ${outgoing.length? `<div class="panel-section"><h4>Conditionne</h4><ul class="dep-list">${outgoing.map(d=>`<li><span class="dep-arrow">→</span>${nameOf(d.target)}</li>`).join("")}</ul></div>`:""}
     <div class="panel-section"><h4>Chef de file</h4><p style="font-size:13px;margin:0">${p.lead}</p></div>
     <div class="panel-section"><h4>Voir le détail complet</h4><p style="font-size:12.5px;color:var(--ink-dim);margin:0">Ouvrez ce pilier dans la section « Les cinq piliers » ci-dessous pour ses actions et indicateurs.</p></div>
   `;
